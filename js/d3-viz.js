@@ -97,8 +97,8 @@ window.D3Viz = {
         const controlsLayer = svg.append("g").attr("class", "controls-layer");
 
         const regLine = lineLayer.append("line").attr("class", "regression-line").attr("x1", 0).attr("x2", width);
-        const handle1 = controlsLayer.append("circle").attr("class", "handle").attr("r", 8).attr("cx", 0);
-        const handle2 = controlsLayer.append("circle").attr("class", "handle").attr("r", 8).attr("cx", width);
+        const handle1 = controlsLayer.append("circle").attr("class", "handle").attr("r", 12).attr("cx", 0);
+        const handle2 = controlsLayer.append("circle").attr("class", "handle").attr("r", 12).attr("cx", width);
 
         // Prediction Point
         const predPoint = predictionLayer.append("circle").attr("r", 6).style("fill", "#e67e22").style("display", "none");
@@ -195,15 +195,17 @@ window.D3Viz = {
                 .attr("y1", d => yScale(d.y)).attr("y2", d => yScale(d.pred));
 
             const squares = squaresLayer.selectAll("rect").data(resData);
+            const squaresUpdate = squares.enter().append("rect").attr("class", "error-square").merge(squares);
+
             if (showSquares) {
-                squares.enter().append("rect").attr("class", "error-square").merge(squares)
-                    .attr("opacity", 1)
+                squaresUpdate
+                    .attr("display", "block")
                     .attr("x", d => xScale(d.x))
                     .attr("y", d => Math.min(yScale(d.y), yScale(d.pred)))
                     .attr("width", d => Math.abs(yScale(d.y) - yScale(d.pred)))
                     .attr("height", d => Math.abs(yScale(d.y) - yScale(d.pred)));
             } else {
-                squares.merge(squares).attr("opacity", 0);
+                squaresUpdate.attr("display", "none");
             }
 
             updatePredictionWidget();

@@ -83,6 +83,17 @@
                 It means we want to minimize the <strong>Sum of Squared Errors (SSE)</strong>.
                 Visually, we want to make the total area of the squares formed by the residuals as small as possible.
             </p>
+            <div class="box-style">
+                <h3>Why Squared Errors?</h3>
+                <p>
+                    You might wonder, why not just minimize the absolute distance? Or minimize the cubed error?
+                    Squaring the errors has two main benefits:
+                </p>
+                <ol>
+                    <li><strong>Penalizes Large Errors:</strong> A residual of 2 becomes 4, but a residual of 10 becomes 100. The model tries very hard to avoid huge misses.</li>
+                    <li><strong>Mathematical Convenience:</strong> The square function is smooth and easy to differentiate, which helps in calculating the "lowest point" (Minima) mathematically.</li>
+                </ol>
+            </div>
 
             <div class="controls-row">
                  <div class="control-group">
