@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Linear Regression</title>
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <!-- MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Math.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.2.0/math.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Interactive Linear Regression</h1>
+        <p>From Statistical Foundations to Machine Learning Intuition</p>
+    </header>
+
+    <main>
+        <!-- Section 1: Problem Framing & Playground -->
+        <section id="playground-section">
+            <h2>1. The Problem & Interactive Playground</h2>
+            <p>
+                Imagine we want to predict a target variable \( Y \) (e.g., House Price) based on a feature \( X \) (e.g., Size).
+                Below, you can see some data points. Your goal is to find the best fitting line \( y = mx + c \).
+            </p>
+            <div class="controls">
+                <div class="control-group">
+                    <label>Slope (\( m \)): <span id="m-val">1</span></label>
+                    <input type="range" id="slope-slider" min="-5" max="5" step="0.1" value="1">
+                </div>
+                <div class="control-group">
+                    <label>Intercept (\( c \)): <span id="c-val">0</span></label>
+                    <input type="range" id="intercept-slider" min="-10" max="10" step="0.5" value="0">
+                </div>
+                <button id="reset-data-btn">Reset Data</button>
+                <button id="clear-data-btn">Clear Data</button>
+            </div>
+
+            <div id="main-plot"></div>
+
+            <div class="metrics-display">
+                <h3>Current Error (MSE): <span id="mse-display">0.00</span></h3>
+                <p>MSE = \( \frac{1}{n} \sum_{i=1}^{n} (y_i - (mx_i + c))^2 \)</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Statistical Perspective -->
+        <section id="stats-section">
+            <h2>2. Statistical Perspective (OLS)</h2>
+            <p>
+                Instead of guessing, we can use the <strong>Ordinary Least Squares (OLS)</strong> closed-form solution.
+            </p>
+            <button id="ols-btn" class="primary-btn">Calculate Optimal Line (OLS)</button>
+
+            <div class="stats-grid">
+                <div class="stats-panel">
+                    <h3>Model Statistics</h3>
+                    <table id="stats-table">
+                        <tr><td>R-Squared (\( R^2 \))</td><td id="r2-val">-</td></tr>
+                        <tr><td>Slope (\( m \))</td><td id="best-m-val">-</td></tr>
+                        <tr><td>Intercept (\( c \))</td><td id="best-c-val">-</td></tr>
+                        <tr><td>F-Statistic</td><td id="f-stat-val">-</td></tr>
+                    </table>
+                </div>
+                <div class="assumptions-panel">
+                    <h3>Assumptions Check</h3>
+                    <div id="residuals-plot"></div>
+                    <div id="residuals-hist"></div>
+                </div>
+            </div>
+            <div class="theory-box">
+                <h4>Why not always use OLS?</h4>
+                <p>
+                    The OLS solution requires inverting a matrix: \( \beta = (X^T X)^{-1} X^T y \).
+                    Matrix inversion has a complexity of roughly \( O(n^3) \). For massive datasets (millions of rows/features), this becomes too slow.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 3: Machine Learning Perspective -->
+        <section id="ml-section">
+            <h2>3. Machine Learning Perspective (Gradient Descent)</h2>
+            <p>
+                In Machine Learning, we treat this as an optimization problem. We want to descend the "Cost Surface" to find the minimum error.
+            </p>
+
+            <div class="ml-controls">
+                <div class="control-group">
+                    <label>Learning Rate (\( \alpha \)): <span id="lr-val">0.01</span></label>
+                    <input type="range" id="lr-slider" min="0.001" max="0.1" step="0.001" value="0.01">
+                </div>
+                <button id="train-btn" class="primary-btn">Start Gradient Descent</button>
+                <button id="reset-gd-btn">Reset Parameters</button>
+            </div>
+
+            <div class="ml-grid">
+                <div id="cost-surface-plot"></div>
+                <div id="cost-history-plot"></div>
+            </div>
+        </section>
+
+        <!-- Section 4: Advanced Concepts -->
+        <section id="advanced-section">
+            <h2>4. Advanced: Multicollinearity & Adjusted \( R^2 \)</h2>
+            <p>
+                What happens when we have multiple features that are correlated? Or when we add useless features?
+            </p>
+
+            <div class="advanced-controls">
+                <div class="control-group">
+                    <label>Correlation between \( X_1, X_2 \): <span id="corr-val">0</span></label>
+                    <input type="range" id="corr-slider" min="0" max="0.99" step="0.05" value="0">
+                </div>
+                <button id="add-noise-btn">Add Random Noise Feature</button>
+                <button id="reset-adv-btn">Reset Advanced Demo</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stats-panel">
+                    <h3>Multiple Regression Stats</h3>
+                    <table id="adv-stats-table">
+                        <tr><td>\( R^2 \)</td><td id="adv-r2">-</td></tr>
+                        <tr><td>Adjusted \( R^2 \)</td><td id="adv-adj-r2">-</td></tr>
+                        <tr><td>Coeff \( X_1 \) SE</td><td id="se-x1">-</td></tr>
+                        <tr><td>Coeff \( X_2 \) SE</td><td id="se-x2">-</td></tr>
+                    </table>
+                </div>
+                 <div id="multi-scatter-plot"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Interactive Learning Module</p>
+    </footer>
+
+    <script src="js/stats.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
