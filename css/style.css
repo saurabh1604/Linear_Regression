@@ -1,0 +1,364 @@
+:root {
+    --primary: #3498db;
+    --secondary: #2c3e50;
+    --accent: #e74c3c;
+    --bg: #fdfdfd;
+    --text: #333;
+    --sidebar-width: 250px;
+    --font-heading: 'Merriweather', serif;
+    --font-body: 'Lato', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    color: var(--text);
+    background: var(--bg);
+    display: flex;
+    line-height: 1.6;
+}
+
+/* Sidebar */
+#sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: #f8f9fa;
+    position: fixed;
+    border-right: 1px solid #eee;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+#sidebar .logo {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1.5rem;
+    color: var(--secondary);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+#sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+#sidebar li {
+    margin-bottom: 0.5rem;
+}
+
+#sidebar a {
+    text-decoration: none;
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    display: block;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+#sidebar a:hover, #sidebar a.active {
+    background: #e1f5fe;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+/* Main Content */
+main {
+    margin-left: var(--sidebar-width);
+    max-width: 800px; /* Reading width */
+    padding: 3rem 4rem;
+    box-sizing: border-box;
+}
+
+header {
+    margin-bottom: 4rem;
+    text-align: center;
+}
+
+h1 {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    color: var(--secondary);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    font-weight: 300;
+}
+
+section {
+    margin-bottom: 5rem;
+    scroll-margin-top: 2rem; /* Smooth scroll offset */
+}
+
+h2 {
+    font-family: var(--font-heading);
+    color: var(--secondary);
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-top: 0;
+}
+
+p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.math-block {
+    background: #f4f6f7;
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 2rem 0;
+    border-left: 4px solid var(--primary);
+}
+
+/* Visualizations */
+.visualization {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin: 2rem 0 0.5rem 0;
+    position: relative;
+    width: 100%;
+    height: 400px; /* Default height */
+    overflow: hidden;
+}
+
+.caption {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-style: italic;
+}
+
+.viz-row {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.half {
+    width: 50%;
+    height: 350px;
+}
+
+.viz-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 250px 250px;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+#viz-diag-main {
+    grid-column: 1 / -1; /* Full width top */
+}
+
+.small {
+    height: 100%;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+button {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: bold;
+    color: var(--secondary);
+    transition: all 0.2s;
+}
+
+button:hover {
+    background: #eee;
+}
+
+button.primary-btn, button.active {
+    background: var(--secondary);
+    color: white;
+    border-color: var(--secondary);
+}
+
+.slide-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+}
+
+.slide-container.full-width {
+    width: 100%;
+    max-width: 400px;
+}
+
+label {
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
+    font-weight: bold;
+}
+
+.metric {
+    font-family: monospace;
+    font-size: 1.1rem;
+    background: #fff;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.stats-box {
+    display: flex;
+    justify-content: space-around;
+    background: #f0f4c3;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+}
+
+/* D3 Specific Styles */
+.axis path, .axis line {
+    stroke: #ccc;
+}
+.axis text {
+    fill: #999;
+}
+.grid line {
+    stroke: #f0f0f0;
+}
+
+.data-point {
+    fill: var(--primary);
+    stroke: white;
+    stroke-width: 2px;
+    cursor: grab;
+}
+.data-point:hover {
+    fill: var(--accent);
+}
+.data-point.dragging {
+    cursor: grabbing;
+    fill: var(--accent);
+}
+
+.mean-line {
+    stroke: var(--secondary);
+    stroke-width: 2px;
+    stroke-dasharray: 4;
+}
+
+.regression-line {
+    stroke: var(--accent);
+    stroke-width: 3px;
+    cursor: ns-resize; /* Indicate drag */
+}
+
+.residual-line {
+    stroke: #bbb;
+    stroke-width: 1px;
+    stroke-dasharray: 2;
+}
+
+.error-square {
+    fill: rgba(231, 76, 60, 0.2); /* Transparent Red */
+    stroke: none;
+}
+
+.handle {
+    fill: white;
+    stroke: var(--secondary);
+    stroke-width: 2px;
+    cursor: pointer;
+}
+
+/* Stats Summary Table */
+.stats-table-container {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stats-table-container h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--secondary);
+    text-align: center;
+}
+
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.stats-table th, .stats-table td {
+    border-bottom: 1px solid #eee;
+    padding: 0.5rem;
+    text-align: right;
+}
+
+.stats-table th {
+    text-align: center;
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.stats-table td:first-child {
+    text-align: left;
+    font-weight: bold;
+}
+
+.model-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    border-top: 1px solid #eee;
+    padding-top: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #sidebar {
+        display: none;
+    }
+    main {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    .viz-row {
+        flex-direction: column;
+    }
+    .half {
+        width: 100%;
+    }
+    .viz-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -3,143 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Linear Regression</title>
-    <!-- Plotly.js -->
+    <title>Linear Regression: A Visual Guide</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+
+    <!-- Libraries -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <!-- MathJax -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <!-- Math.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.2.0/math.js"></script>
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header>
-        <h1>Interactive Linear Regression</h1>
-        <p>From Statistical Foundations to Machine Learning Intuition</p>
-    </header>
+
+    <nav id="sidebar">
+        <div class="logo">LR Explained</div>
+        <ul>
+            <li><a href="#intro" class="active">1. The Problem</a></li>
+            <li><a href="#baseline">2. The Baseline</a></li>
+            <li><a href="#fitting">3. Fitting the Line</a></li>
+            <li><a href="#mse">4. Visualizing Error</a></li>
+            <li><a href="#optimization">5. Gradient Descent</a></li>
+            <li><a href="#diagnostics">6. Diagnostics</a></li>
+            <li><a href="#advanced">7. Advanced Topics</a></li>
+        </ul>
+    </nav>
 
     <main>
-        <!-- Section 1: Problem Framing & Playground -->
-        <section id="playground-section">
-            <h2>1. The Problem & Interactive Playground</h2>
+        <header>
+            <h1>Linear Regression</h1>
+            <p class="subtitle">A Visual Introduction to the Workhorse of Machine Learning</p>
+        </header>
+
+        <!-- 1. Intro -->
+        <section id="intro">
+            <h2>1. The Problem</h2>
             <p>
-                Imagine we want to predict a target variable \( Y \) (e.g., House Price) based on a feature \( X \) (e.g., Size).
-                Below, you can see some data points. Your goal is to find the best fitting line \( y = mx + c \).
+                Imagine we want to predict the price of a house based on its size.
+                We have some historical data: points on a 2D plane where the x-axis is <strong>Square Footage</strong> and the y-axis is <strong>Price</strong>.
+            </p>
+            <p>
+                Our goal is to find a model—a mathematical equation—that describes the relationship between these two variables.
+                In Linear Regression, we assume this relationship is a straight line:
+            </p>
+            <div class="math-block">
+                $$ y = \beta_0 + \beta_1 x + \epsilon $$
+            </div>
+            <p>
+                Where \( \beta_0 \) is the <strong>intercept</strong> (bias), \( \beta_1 \) is the <strong>slope</strong> (weight), and \( \epsilon \) is the noise/error.
+            </p>
+        </section>
+
+        <!-- 2. Baseline -->
+        <section id="baseline">
+            <h2>2. The Baseline Model</h2>
+            <p>
+                Before we try to find a fancy line, let's start with the simplest possible prediction: the <strong>Average</strong>.
+                If we ignore the size of the house, our best guess for any house is just the average price of all houses in our dataset.
+            </p>
+            <div id="viz-baseline" class="visualization"></div>
+            <p class="caption">
+                The horizontal line represents \( \bar{y} \) (the mean). The vertical lines are the <strong>residuals</strong> (errors).
+                Drag the points to see how the mean and residuals change.
+            </p>
+        </section>
+
+        <!-- 3. Fitting & 4. MSE Combined for flow -->
+        <section id="fitting">
+            <h2>3. Fitting the Line & Minimizing Squares</h2>
+            <p>
+                The "Mean" model is okay, but we can do better by using the house size.
+                We want a line that passes "through" the data. But what does "best fit" actually mean?
+            </p>
+            <p>
+                It means we want to minimize the <strong>Sum of Squared Errors (SSE)</strong>.
+                Visually, we want to make the total area of the squares formed by the residuals as small as possible.
+            </p>
+
+            <div class="controls">
+                <button id="toggle-squares-btn">Show Squared Errors</button>
+                <button id="reset-fit-btn">Reset</button>
+                <div class="metric">MSE: <span id="mse-val">0.00</span></div>
+                <div class="metric">R²: <span id="r2-val">0.00</span></div>
+            </div>
+
+            <div id="viz-fitting" class="visualization"></div>
+            <p class="caption">
+                <strong>Try it!</strong> Drag the two circular handles on the line to adjust the Slope (\( \beta_1 \)) and Intercept (\( \beta_0 \)).
+                Try to make the red squares as small as possible and get R² close to 1.
+            </p>
+            <p>
+                <strong>MSE (Mean Squared Error)</strong> measures the average squared difference between the estimated values and the actual value.
+                <strong>R² (Coefficient of Determination)</strong> represents the proportion of the variance for a dependent variable that's explained by an independent variable.
+                Higher R² (up to 1.0) is better.
+            </p>
+        </section>
+
+        <!-- 5. Gradient Descent -->
+        <section id="optimization">
+            <h2>4. How the Machine Learns (Gradient Descent)</h2>
+            <p>
+                You just fit the line manually. But how does a computer do it?
+                It uses an algorithm called <strong>Gradient Descent</strong>.
+                Imagine a landscape where the "height" is the Error (MSE). We want to walk downhill to find the lowest point.
+            </p>
+
+            <div class="controls">
+                <button id="step-gd-btn" class="primary-btn">Step</button>
+                <button id="run-gd-btn">Run</button>
+                <button id="reset-gd-btn">Reset</button>
+                <div class="slide-container">
+                    <label>Learning Rate: <span id="lr-val">0.01</span></label>
+                    <input type="range" id="lr-slider" min="0.001" max="0.05" step="0.001" value="0.01">
+                </div>
+            </div>
+
+            <div class="viz-row">
+                <div id="viz-gd-line" class="visualization half"></div>
+                <div id="viz-gd-contour" class="visualization half"></div>
+            </div>
+            <p class="caption">
+                <strong>Left:</strong> The regression line updating.
+                <strong>Right:</strong> The "Cost Landscape" (Contour Plot). The dot represents our current model parameters (\( \beta_0, \beta_1 \)).
+                Watch it roll down the hill!
+            </p>
+        </section>
+
+        <!-- 6. Diagnostics -->
+        <section id="diagnostics">
+            <h2>5. When Things Go Wrong (Diagnostics)</h2>
+            <p>
+                Linear Regression makes assumptions. If these are violated, our model might be misleading.
             </p>
             <div class="controls">
-                <div class="control-group">
-                    <label>Slope (\( m \)): <span id="m-val">1</span></label>
-                    <input type="range" id="slope-slider" min="-5" max="5" step="0.1" value="1">
-                </div>
-                <div class="control-group">
-                    <label>Intercept (\( c \)): <span id="c-val">0</span></label>
-                    <input type="range" id="intercept-slider" min="-10" max="10" step="0.5" value="0">
-                </div>
-                <button id="reset-data-btn">Reset Data</button>
-                <button id="clear-data-btn">Clear Data</button>
+                <button class="data-btn active" data-type="linear">Ideal Data</button>
+                <button class="data-btn" data-type="hetero">Heteroscedasticity (Fan)</button>
+                <button class="data-btn" data-type="nonlinear">Non-Linear (Curve)</button>
+                <button class="data-btn" data-type="outlier">Outliers</button>
             </div>
 
-            <div id="main-plot"></div>
-
-            <div class="metrics-display">
-                <h3>Current Error (MSE): <span id="mse-display">0.00</span></h3>
-                <p>MSE = \( \frac{1}{n} \sum_{i=1}^{n} (y_i - (mx_i + c))^2 \)</p>
+            <div class="viz-grid">
+                <div id="viz-diag-main" class="visualization small"></div>
+                <div id="viz-diag-resid" class="visualization small"></div>
+                <div id="viz-diag-qq" class="visualization small"></div>
             </div>
+
+            <div id="stats-summary" class="stats-table-container">
+                <h3>Model Summary</h3>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Predictor</th>
+                            <th>Coef</th>
+                            <th>Std. Err</th>
+                            <th>t-value</th>
+                            <th>p-value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-table-body">
+                        <!-- Rows will be populated by JS -->
+                    </tbody>
+                </table>
+                <div class="model-stats">
+                    <span><strong>F-statistic:</strong> <span id="f-stat">0.00</span></span>
+                    <span><strong>Prob (F-statistic):</strong> <span id="f-prob">0.00</span></span>
+                </div>
+            </div>
+
+            <p class="caption">
+                <strong>Top:</strong> Data & Fit.
+                <strong>Bottom Left:</strong> Residuals vs Fitted (Should be random noise).
+                <strong>Bottom Right:</strong> QQ Plot (Should be on the diagonal line for Normal errors).
+            </p>
         </section>
 
-        <!-- Section 2: Statistical Perspective -->
-        <section id="stats-section">
-            <h2>2. Statistical Perspective (OLS)</h2>
+        <!-- 7. Advanced -->
+        <section id="advanced">
+            <h2>6. Advanced: The Curse of Multicollinearity</h2>
             <p>
-                Instead of guessing, we can use the <strong>Ordinary Least Squares (OLS)</strong> closed-form solution.
+                What if we have two features, \( X_1 \) and \( X_2 \), but they are highly correlated (e.g., House Size in sqft and House Size in sq meters)?
+                The model gets confused about which feature gets the credit.
             </p>
-            <button id="ols-btn" class="primary-btn">Calculate Optimal Line (OLS)</button>
-
-            <div class="stats-grid">
-                <div class="stats-panel">
-                    <h3>Model Statistics</h3>
-                    <table id="stats-table">
-                        <tr><td>R-Squared (\( R^2 \))</td><td id="r2-val">-</td></tr>
-                        <tr><td>Slope (\( m \))</td><td id="best-m-val">-</td></tr>
-                        <tr><td>Intercept (\( c \))</td><td id="best-c-val">-</td></tr>
-                        <tr><td>F-Statistic</td><td id="f-stat-val">-</td></tr>
-                    </table>
-                </div>
-                <div class="assumptions-panel">
-                    <h3>Assumptions Check</h3>
-                    <div id="residuals-plot"></div>
-                    <div id="residuals-hist"></div>
-                </div>
-            </div>
-            <div class="theory-box">
-                <h4>Why not always use OLS?</h4>
-                <p>
-                    The OLS solution requires inverting a matrix: \( \beta = (X^T X)^{-1} X^T y \).
-                    Matrix inversion has a complexity of roughly \( O(n^3) \). For massive datasets (millions of rows/features), this becomes too slow.
-                </p>
-            </div>
-        </section>
-
-        <!-- Section 3: Machine Learning Perspective -->
-        <section id="ml-section">
-            <h2>3. Machine Learning Perspective (Gradient Descent)</h2>
-            <p>
-                In Machine Learning, we treat this as an optimization problem. We want to descend the "Cost Surface" to find the minimum error.
-            </p>
-
-            <div class="ml-controls">
-                <div class="control-group">
-                    <label>Learning Rate (\( \alpha \)): <span id="lr-val">0.01</span></label>
-                    <input type="range" id="lr-slider" min="0.001" max="0.1" step="0.001" value="0.01">
-                </div>
-                <button id="train-btn" class="primary-btn">Start Gradient Descent</button>
-                <button id="reset-gd-btn">Reset Parameters</button>
-            </div>
-
-            <div class="ml-grid">
-                <div id="cost-surface-plot"></div>
-                <div id="cost-history-plot"></div>
-            </div>
-        </section>
-
-        <!-- Section 4: Advanced Concepts -->
-        <section id="advanced-section">
-            <h2>4. Advanced: Multicollinearity & Adjusted \( R^2 \)</h2>
-            <p>
-                What happens when we have multiple features that are correlated? Or when we add useless features?
-            </p>
-
-            <div class="advanced-controls">
-                <div class="control-group">
+             <div class="controls">
+                <div class="slide-container full-width">
                     <label>Correlation between \( X_1, X_2 \): <span id="corr-val">0</span></label>
-                    <input type="range" id="corr-slider" min="0" max="0.99" step="0.05" value="0">
+                    <input type="range" id="corr-slider" min="0" max="0.99" step="0.01" value="0">
                 </div>
-                <button id="add-noise-btn">Add Random Noise Feature</button>
-                <button id="reset-adv-btn">Reset Advanced Demo</button>
             </div>
 
-            <div class="stats-grid">
-                <div class="stats-panel">
-                    <h3>Multiple Regression Stats</h3>
-                    <table id="adv-stats-table">
-                        <tr><td>\( R^2 \)</td><td id="adv-r2">-</td></tr>
-                        <tr><td>Adjusted \( R^2 \)</td><td id="adv-adj-r2">-</td></tr>
-                        <tr><td>Coeff \( X_1 \) SE</td><td id="se-x1">-</td></tr>
-                        <tr><td>Coeff \( X_2 \) SE</td><td id="se-x2">-</td></tr>
-                    </table>
-                </div>
-                 <div id="multi-scatter-plot"></div>
+            <div id="viz-multi-3d" class="visualization" style="height: 500px;"></div>
+            <div class="stats-box">
+                <div><strong>Standard Error (\( X_1 \)):</strong> <span id="se-x1">0.00</span></div>
+                <div><strong>Standard Error (\( X_2 \)):</strong> <span id="se-x2">0.00</span></div>
             </div>
+            <p class="caption">
+                As correlation increases, the plane becomes unstable (wobbly), and the Standard Errors of the coefficients explode.
+            </p>
         </section>
+
+        <footer>
+            <p>Created with D3.js & Love for Explorable Explanations.</p>
+        </footer>
+
     </main>
 
-    <footer>
-        <p>Interactive Learning Module</p>
-    </footer>
-
-    <script src="js/stats.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/d3-viz.js"></script>
+    <script src="js/narrative.js"></script>
 </body>
 </html>
