@@ -92,12 +92,17 @@ window.D3Viz = {
         const squaresLayer = svg.append("g").attr("class", "squares");
         const residualsLayer = svg.append("g").attr("class", "residuals");
         const lineLayer = svg.append("g").attr("class", "line-layer");
+        const predictionLayer = svg.append("g").attr("class", "prediction-layer"); // New layer for prediction point
         const pointsLayer = svg.append("g").attr("class", "points");
         const controlsLayer = svg.append("g").attr("class", "controls-layer");
 
         const regLine = lineLayer.append("line").attr("class", "regression-line").attr("x1", 0).attr("x2", width);
         const handle1 = controlsLayer.append("circle").attr("class", "handle").attr("r", 8).attr("cx", 0);
         const handle2 = controlsLayer.append("circle").attr("class", "handle").attr("r", 8).attr("cx", width);
+
+        // Prediction Point
+        const predPoint = predictionLayer.append("circle").attr("r", 6).style("fill", "#e67e22").style("display", "none");
+        const predLine = predictionLayer.append("line").style("stroke", "#e67e22").style("stroke-dasharray", "4").style("display", "none");
 
         pointsLayer.selectAll("circle").data(data).enter().append("circle").attr("class", "data-point").attr("r", 6)
             .attr("cx", d => xScale(d.x)).attr("cy", d => yScale(d.y)).style("cursor", "default");
@@ -123,6 +128,29 @@ window.D3Viz = {
         handle1.call(dragHandle);
         handle2.call(dragHandle);
 
+        function updatePredictionWidget() {
+             const inputVal = parseFloat(document.getElementById("pred-input").value) || 0;
+             // Clamp to domain
+             const clampedX = Math.max(0, Math.min(10, inputVal));
+             const predY = model.m * clampedX + model.c;
+
+             d3.select("#pred-output").text(predY.toFixed(2));
+             d3.select("#pred-calc-detail").html(`Price = <b>${model.m.toFixed(2)}</b> &times; ${clampedX} + <b>${model.c.toFixed(2)}</b> = ${predY.toFixed(2)}`);
+
+             // Update visual point
+             if (inputVal >= 0 && inputVal <= 10) {
+                 const cx = xScale(clampedX);
+                 const cy = yScale(predY);
+                 predPoint.style("display", "block").attr("cx", cx).attr("cy", cy);
+                 predLine.style("display", "block")
+                    .attr("x1", cx).attr("x2", cx)
+                    .attr("y1", height).attr("y2", cy);
+             } else {
+                 predPoint.style("display", "none");
+                 predLine.style("display", "none");
+             }
+        }
+
         function updateViz() {
             const y1 = yScale(model.m * xScale.invert(0) + model.c);
             const y2 = yScale(model.m * xScale.invert(width) + model.c);
@@ -147,6 +175,20 @@ window.D3Viz = {
             d3.select("#mse-val").text(mse.toFixed(2));
             d3.select("#r2-val").text(r2.toFixed(2));
 
+            // Update Equation Text
+            d3.select("#eq-display").html(`Price = <b>${model.m.toFixed(2)}</b> &times; Size + <b>${model.c.toFixed(2)}</b>`);
+
+            // Update Data Table (Top 5)
+            const tbody = d3.select("#fitting-data-table tbody");
+            tbody.html("");
+            resData.slice(0, 5).forEach(d => {
+                 const row = tbody.append("tr");
+                 row.append("td").text(d.x.toFixed(2));
+                 row.append("td").text(d.y.toFixed(2));
+                 row.append("td").text(d.pred.toFixed(2));
+                 row.append("td").text((d.error * d.error).toFixed(2));
+            });
+
             const residuals = residualsLayer.selectAll("line").data(resData);
             residuals.enter().append("line").attr("class", "residual-line").merge(residuals)
                 .attr("x1", d => xScale(d.x)).attr("x2", d => xScale(d.x))
@@ -163,6 +205,8 @@ window.D3Viz = {
             } else {
                 squares.merge(squares).attr("opacity", 0);
             }
+
+            updatePredictionWidget();
         }
 
         document.getElementById("toggle-squares-btn").addEventListener("click", function() {
@@ -174,6 +218,7 @@ window.D3Viz = {
              model = { m: 0, c: 10 };
              updateViz();
         });
+        document.getElementById("pred-input").addEventListener("input", updatePredictionWidget);
         updateViz();
     },
 
@@ -425,11 +470,36 @@ window.D3Viz = {
             return { m, c, seM, seC, tM, tC, pM, pC, fStat, pF };
         }
 
+        // Shared state for prediction
+        let currentM = 0;
+        let currentC = 0;
+        let currentType = 'linear';
+
+        function updatePrediction() {
+            const val = parseFloat(document.getElementById("diag-pred-input").value) || 0;
+            const pred = currentM * val + currentC;
+            document.getElementById("diag-pred-output").textContent = pred.toFixed(2);
+
+            const warning = document.getElementById("diag-warning");
+            if (currentType === 'nonlinear' || currentType === 'outlier') {
+                warning.style.display = "block";
+                warning.textContent = currentType === 'nonlinear'
+                    ? "Warning: Linear model may not fit curved data well. Prediction is likely biased."
+                    : "Warning: Outliers may have skewed the model, affecting prediction accuracy.";
+            } else {
+                warning.style.display = "none";
+            }
+        }
+
         function update(type) {
+            currentType = type;
             const data = generateDiagData(type);
             const stats = calculateStats(data);
             const m = stats.m;
             const c = stats.c;
+
+            currentM = m;
+            currentC = c;
 
             // Update Table
             const tbody = document.getElementById("stats-table-body");
@@ -483,6 +553,8 @@ window.D3Viz = {
             qPts.enter().append("circle").attr("class", "data-point").attr("r", 3).style("fill", "#27ae60")
                 .merge(qPts).transition().attr("cx", d=>qScale(d.z)).attr("cy", d=>rYScale(d.r));
             qPts.exit().remove();
+
+            updatePrediction();
         }
 
         document.querySelectorAll(".data-btn").forEach(btn => {
@@ -492,6 +564,8 @@ window.D3Viz = {
                 update(e.target.dataset.type);
             });
         });
+
+        document.getElementById("diag-pred-input").addEventListener("input", updatePrediction);
 
         update("linear");
     },

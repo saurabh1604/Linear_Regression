@@ -24,13 +24,12 @@
     <nav id="sidebar">
         <div class="logo">LR Explained</div>
         <ul>
-            <li><a href="#intro" class="active">1. The Problem</a></li>
-            <li><a href="#baseline">2. The Baseline</a></li>
-            <li><a href="#fitting">3. Fitting the Line</a></li>
-            <li><a href="#mse">4. Visualizing Error</a></li>
-            <li><a href="#optimization">5. Gradient Descent</a></li>
-            <li><a href="#diagnostics">6. Diagnostics</a></li>
-            <li><a href="#advanced">7. Advanced Topics</a></li>
+            <li><a href="#" data-target="intro" class="nav-link active">1. The Problem</a></li>
+            <li><a href="#" data-target="baseline" class="nav-link">2. The Baseline</a></li>
+            <li><a href="#" data-target="fitting" class="nav-link">3. Fitting the Line</a></li>
+            <li><a href="#" data-target="optimization" class="nav-link">4. Gradient Descent</a></li>
+            <li><a href="#" data-target="diagnostics" class="nav-link">5. Diagnostics</a></li>
+            <li><a href="#" data-target="advanced" class="nav-link">6. Advanced Topics</a></li>
         </ul>
     </nav>
 
@@ -41,7 +40,7 @@
         </header>
 
         <!-- 1. Intro -->
-        <section id="intro">
+        <section id="intro" class="tab-content active">
             <h2>1. The Problem</h2>
             <p>
                 Imagine we want to predict the price of a house based on its size.
@@ -60,7 +59,7 @@
         </section>
 
         <!-- 2. Baseline -->
-        <section id="baseline">
+        <section id="baseline" class="tab-content">
             <h2>2. The Baseline Model</h2>
             <p>
                 Before we try to find a fancy line, let's start with the simplest possible prediction: the <strong>Average</strong>.
@@ -73,8 +72,8 @@
             </p>
         </section>
 
-        <!-- 3. Fitting & 4. MSE Combined for flow -->
-        <section id="fitting">
+        <!-- 3. Fitting & 4. MSE Combined -->
+        <section id="fitting" class="tab-content">
             <h2>3. Fitting the Line & Minimizing Squares</h2>
             <p>
                 The "Mean" model is okay, but we can do better by using the house size.
@@ -85,27 +84,72 @@
                 Visually, we want to make the total area of the squares formed by the residuals as small as possible.
             </p>
 
-            <div class="controls">
-                <button id="toggle-squares-btn">Show Squared Errors</button>
-                <button id="reset-fit-btn">Reset</button>
-                <div class="metric">MSE: <span id="mse-val">0.00</span></div>
-                <div class="metric">R²: <span id="r2-val">0.00</span></div>
+            <div class="controls-row">
+                 <div class="control-group">
+                    <button id="toggle-squares-btn">Show Squared Errors</button>
+                    <button id="reset-fit-btn">Reset</button>
+                 </div>
+                 <div class="metrics-display">
+                    <div class="metric">MSE: <span id="mse-val">0.00</span></div>
+                    <div class="metric">R²: <span id="r2-val">0.00</span></div>
+                 </div>
             </div>
 
-            <div id="viz-fitting" class="visualization"></div>
+            <!-- Dynamic Math Section -->
+            <div class="math-explainer box-style">
+                <h3>The Model Equation</h3>
+                <div class="equation-display">
+                    $$ \text{Price} = \class{slope-val}{\beta_1} \times \text{Size} + \class{intercept-val}{\beta_0} $$
+                </div>
+                <div class="current-equation">
+                    Current Model: <span id="eq-display">Price = 0.00 * Size + 0.00</span>
+                </div>
+            </div>
+
+            <div class="viz-container-row">
+                <div id="viz-fitting" class="visualization main-viz"></div>
+
+                <!-- New Data Panel -->
+                <div class="data-panel">
+                    <h3>Data Points & Residuals</h3>
+                    <div class="table-container">
+                        <table id="fitting-data-table">
+                            <thead>
+                                <tr>
+                                    <th>Size (x)</th>
+                                    <th>Price (y)</th>
+                                    <th>Pred (<span class="hat">^</span>y)</th>
+                                    <th>Error²</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div class="prediction-widget box-style">
+                        <h4>Test Prediction</h4>
+                        <div class="input-group">
+                            <label>House Size:</label>
+                            <input type="number" id="pred-input" value="5" step="0.1" min="0" max="10">
+                        </div>
+                        <div class="pred-result">
+                            Predicted Price: <strong>$<span id="pred-output">--</span></strong>
+                        </div>
+                        <div class="calc-detail small-text" id="pred-calc-detail">
+                            Calculation: ...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <p class="caption">
                 <strong>Try it!</strong> Drag the two circular handles on the line to adjust the Slope (\( \beta_1 \)) and Intercept (\( \beta_0 \)).
-                Try to make the red squares as small as possible and get R² close to 1.
-            </p>
-            <p>
-                <strong>MSE (Mean Squared Error)</strong> measures the average squared difference between the estimated values and the actual value.
-                <strong>R² (Coefficient of Determination)</strong> represents the proportion of the variance for a dependent variable that's explained by an independent variable.
-                Higher R² (up to 1.0) is better.
+                Observe how the residuals (vertical lines) and their squares update in real-time.
             </p>
         </section>
 
         <!-- 5. Gradient Descent -->
-        <section id="optimization">
+        <section id="optimization" class="tab-content">
             <h2>4. How the Machine Learns (Gradient Descent)</h2>
             <p>
                 You just fit the line manually. But how does a computer do it?
@@ -135,7 +179,7 @@
         </section>
 
         <!-- 6. Diagnostics -->
-        <section id="diagnostics">
+        <section id="diagnostics" class="tab-content">
             <h2>5. When Things Go Wrong (Diagnostics)</h2>
             <p>
                 Linear Regression makes assumptions. If these are violated, our model might be misleading.
@@ -153,37 +197,48 @@
                 <div id="viz-diag-qq" class="visualization small"></div>
             </div>
 
-            <div id="stats-summary" class="stats-table-container">
-                <h3>Model Summary</h3>
-                <table class="stats-table">
-                    <thead>
-                        <tr>
-                            <th>Predictor</th>
-                            <th>Coef</th>
-                            <th>Std. Err</th>
-                            <th>t-value</th>
-                            <th>p-value</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stats-table-body">
-                        <!-- Rows will be populated by JS -->
-                    </tbody>
-                </table>
-                <div class="model-stats">
-                    <span><strong>F-statistic:</strong> <span id="f-stat">0.00</span></span>
-                    <span><strong>Prob (F-statistic):</strong> <span id="f-prob">0.00</span></span>
+            <div class="split-row">
+                <div id="stats-summary" class="stats-table-container half">
+                    <h3>Model Summary</h3>
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Predictor</th>
+                                <th>Coef</th>
+                                <th>Std. Err</th>
+                                <th>t-value</th>
+                                <th>p-value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-table-body">
+                            <!-- Rows will be populated by JS -->
+                        </tbody>
+                    </table>
+                    <div class="model-stats">
+                        <span><strong>F-statistic:</strong> <span id="f-stat">0.00</span></span>
+                        <span><strong>Prob (F-statistic):</strong> <span id="f-prob">0.00</span></span>
+                    </div>
+                </div>
+
+                <div class="prediction-widget box-style half">
+                    <h3>Validation Check</h3>
+                    <p class="small-text">See how the model performs on a hypothetical new data point.</p>
+                    <div class="input-group">
+                        <label>New House Size:</label>
+                        <input type="number" id="diag-pred-input" value="5" step="0.1" min="0" max="10">
+                    </div>
+                    <div class="pred-result">
+                        Prediction: <strong>$<span id="diag-pred-output">--</span></strong>
+                    </div>
+                    <div class="warning-box" id="diag-warning" style="display:none; color: orange;">
+                        Warning: Prediction might be unreliable due to model assumptions violation.
+                    </div>
                 </div>
             </div>
-
-            <p class="caption">
-                <strong>Top:</strong> Data & Fit.
-                <strong>Bottom Left:</strong> Residuals vs Fitted (Should be random noise).
-                <strong>Bottom Right:</strong> QQ Plot (Should be on the diagonal line for Normal errors).
-            </p>
         </section>
 
         <!-- 7. Advanced -->
-        <section id="advanced">
+        <section id="advanced" class="tab-content">
             <h2>6. Advanced: The Curse of Multicollinearity</h2>
             <p>
                 What if we have two features, \( X_1 \) and \( X_2 \), but they are highly correlated (e.g., House Size in sqft and House Size in sq meters)?
